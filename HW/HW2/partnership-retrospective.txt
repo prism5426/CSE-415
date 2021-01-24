@@ -1,0 +1,11 @@
+(a)
+partner 1 firstname and lastname: Yijie Li
+partner 1 student number: 1810605
+partner 1 uwnetid: yijiel2	
+
+partner 2 firstname and lastname: Junqi Ye
+partner 2 student number: 1833403
+partner 2 uwnetid: jy98
+
+(b)
+We discussed the problem, coded, and debugged together.

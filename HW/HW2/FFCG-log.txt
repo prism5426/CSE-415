@@ -1,0 +1,81 @@
+C:\Users\liyij\anaconda3\python.exe "C:/Users/liyij/OneDrive - UW/UW/Winter 21/CSE 415/HW/HW2/ItrDFS.py"
+
+Welcome to ItrDFS
+Initial State:
+['C', 'Fa', 'Fo', 'G'] || []
+Boat is on the left.
+
+len(OPEN)=1; len(CLOSED)=0; COUNT = 0
+OPEN is now: ['Fo', 'G'] || ['C', 'Fa']
+Boat is on the right.
+
+len(OPEN)=1; len(CLOSED)=1; COUNT = 1
+OPEN is now: ['Fa', 'Fo', 'G'] || ['C']
+Boat is on the left.
+
+len(OPEN)=1; len(CLOSED)=2; COUNT = 2
+OPEN is now: ['G'] || ['C', 'Fa', 'Fo']
+Boat is on the right.
+, ['Fo'] || ['C', 'Fa', 'G']
+Boat is on the right.
+
+len(OPEN)=2; len(CLOSED)=3; COUNT = 3
+OPEN is now: ['C', 'Fa', 'G'] || ['Fo']
+Boat is on the left.
+, ['Fo'] || ['C', 'Fa', 'G']
+Boat is on the right.
+
+len(OPEN)=2; len(CLOSED)=4; COUNT = 4
+OPEN is now: ['C'] || ['Fa', 'Fo', 'G']
+Boat is on the right.
+, ['Fo'] || ['C', 'Fa', 'G']
+Boat is on the right.
+
+len(OPEN)=2; len(CLOSED)=5; COUNT = 5
+OPEN is now: ['C', 'Fa'] || ['Fo', 'G']
+Boat is on the left.
+, ['C', 'Fa', 'Fo'] || ['G']
+Boat is on the left.
+, ['Fo'] || ['C', 'Fa', 'G']
+Boat is on the right.
+
+len(OPEN)=3; len(CLOSED)=6; COUNT = 6
+OPEN is now: [] || ['C', 'Fa', 'Fo', 'G']
+Boat is on the right.
+, ['C', 'Fa', 'Fo'] || ['G']
+Boat is on the left.
+, ['Fo'] || ['C', 'Fa', 'G']
+Boat is on the right.
+
+len(OPEN)=3; len(CLOSED)=7; COUNT = 7
+You have solved the Farmer problem!
+Solution path: 
+['C', 'Fa', 'Fo', 'G'] || []
+Boat is on the left.
+
+['Fo', 'G'] || ['C', 'Fa']
+Boat is on the right.
+
+['Fa', 'Fo', 'G'] || ['C']
+Boat is on the left.
+
+['G'] || ['C', 'Fa', 'Fo']
+Boat is on the right.
+
+['C', 'Fa', 'G'] || ['Fo']
+Boat is on the left.
+
+['C'] || ['Fa', 'Fo', 'G']
+Boat is on the right.
+
+['C', 'Fa'] || ['Fo', 'G']
+Boat is on the left.
+
+[] || ['C', 'Fa', 'Fo', 'G']
+Boat is on the right.
+
+Length of solution path found: 7 edges
+7 states expanded.
+MAX_OPEN_LENGTH = 3
+
+Process finished with exit code 0
