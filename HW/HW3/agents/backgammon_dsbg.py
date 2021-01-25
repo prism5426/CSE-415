@@ -67,7 +67,7 @@ class BackgammonPlayer:
                 if checker == 'W':
                     pts += index
                 elif checker == 'R':
-                    pts -= (24 - index)
+                    pts -= (23 - index)
 
         return pts
 
@@ -108,7 +108,7 @@ class BackgammonPlayer:
 
     # gameover if in current state, either player has no checker on the board
     def gameover(self, state, maximizing_player):
-        if maximizing_player == 'W':
+        if maximizing_player == 0: # maximizing player is white
             return len(state.white_off) == 15
         else:
             return len(state.red_off) == 15
