@@ -4,6 +4,8 @@ UW netid(s):
 '''
 
 from game_engine import genmoves
+import math
+
 
 class BackgammonPlayer:
     def __init__(self):
@@ -11,8 +13,7 @@ class BackgammonPlayer:
 
     # returns a string representing a unique nick name for your agent
     def nickname(self):
-        # TODO: return a string representation of your UW netid(s)
-        return ""
+        return "Yijie Li:1810605\nJunqi Ye: 1833403"
 
     # If prune==True, changes the search algorthm from minimax
     # to Alpha-Beta Pruning
@@ -31,8 +32,7 @@ class BackgammonPlayer:
     # should go down in the search tree. If maxply==-1,
     # no limit is set
     def setMaxPly(self, maxply=-1):
-        # TODO: set the max ply
-        pass
+        self.setMaxPly = maxply
 
     # If not None, it update the internal static evaluation
     # function to be func
@@ -45,12 +45,88 @@ class BackgammonPlayer:
     def move(self, state, die1=1, die2=6):
         # TODO: return a move for the current state and for the current player.
         # Hint: you can get the current player with state.whose_move
-        return None
+        self.die1 = die1
+        self.die2 = die2
 
+        # update the move_generator to current state/position
+        self.initialize_move_gen_for_state(state, 0, self.die1, self.die2)
+        # get all possible moves in current position
+        pm_list = self.get_all_possible_moves()
+
+
+
+        return None
 
     # Given a state, returns an integer which represents how good the state is
     # for the two players (W and R) -- more positive numbers are good for W
     # while more negative numbers are good for R
     def staticEval(self, state):
-        # TODO: return a number for the given state
-        return -1
+        pts = 0
+        for index in range(24):
+            for checker in state.pointLists[index]:
+                if checker == 'W':
+                    pts += index
+                elif checker == 'R':
+                    pts -= (24 - index)
+
+        return pts
+
+    # returns the best move's staticEval
+    def minimax(self, state, depth, maximizing_player):
+        if depth == 0 or self.gameover(state, maximizing_player):
+            return self.staticEval(state)
+
+        if maximizing_player:
+            maxEval = -math.inf
+
+            # update the move_generator to current state/position
+            self.initialize_move_gen_for_state(state, maximizing_player, self.die1, self.die2)
+            # get all possible moves in current position
+            pm_list = self.get_all_possible_moves()
+
+            for s in pm_list:
+                eval = self.minimax(s, depth - 1, not maximizing_player)
+                maxEval = max(maxEval, eval)
+            return maxEval
+
+        else:
+            minEval = math.inf
+
+            # update the move_generator to current state/position
+            self.initialize_move_gen_for_state(state, maximizing_player, self.die1, self.die2)
+            # get all possible moves in current position
+            pm_list = self.get_all_possible_moves()
+
+            for s in pm_list:
+                eval = self.minimax(s, depth - 1, not maximizing_player)
+                minEval = min(minEval, eval)
+            return minEval
+
+
+    def initialize_move_gen_for_state(self, state, who, die1, die2):
+        self.move_generator = self.GenMoveInstance.gen_moves(state, who, die1, die2)
+
+    # gameover if in current state, either player has no checker on the board
+    def gameover(self, state, maximizing_player):
+        if maximizing_player == 'W':
+            return len(state.white_off) == 15
+        else:
+            return len(state.red_off) == 15
+
+    def get_all_possible_moves(self):
+        """Uses the mover to generate all legal moves. Returns an array of move commands"""
+        move_list = []
+        done_finding_moves = False
+        any_non_pass_moves = False
+        while not done_finding_moves:
+            try:
+                m = next(self.move_generator)    # Gets a (move, state) pair.
+                # print("next returns: ",m[0]) # Prints out the move.    For debugging.
+                if m[0] != 'p':
+                    any_non_pass_moves = True
+                    move_list.append(m[0])    # Add the move to the list.
+            except StopIteration as e:
+                done_finding_moves = True
+        if not any_non_pass_moves:
+            move_list.append('p')
+        return move_list
