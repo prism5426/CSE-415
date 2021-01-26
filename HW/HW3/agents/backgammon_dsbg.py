@@ -55,7 +55,7 @@ class BackgammonPlayer:
         # get all possible moves in current position
         pm_list = self.get_all_possible_moves()
 
-        eval, best_move = self.minimax(state, self.MaxDepth, state.whose_move, None)
+        eval, best_move = self.minimax(state, self.MaxDepth, state.whose_move)
         return best_move
 
 
@@ -128,11 +128,11 @@ class BackgammonPlayer:
         return pts
 
     # returns the best move's staticEval
-    def minimax(self, state, depth, maximizing_player, best_move):
+    def minimax(self, state, depth, maximizing_player):
         if state is None:
             return 0, 'p'
         if depth == 0 or self.gameover(state, maximizing_player):
-            return self.staticEval(state), best_move
+            return self.staticEval(state), None
 
         # update the move_generator to current state/position
         self.initialize_move_gen_for_state(state, maximizing_player, self.die1, self.die2)
@@ -142,7 +142,7 @@ class BackgammonPlayer:
         if maximizing_player is W:
             maxEval = -math.inf
             for s in pm_list:
-                eval, _ = self.minimax(s[1], depth-1, not maximizing_player, best_move)
+                eval, _ = self.minimax(s[1], depth-1, not maximizing_player)
                 # maxEval = max(maxEval, eval)
                 if eval > maxEval:
                     maxEval = eval
@@ -152,7 +152,7 @@ class BackgammonPlayer:
         else:
             minEval = math.inf
             for s in pm_list:
-                eval, _ = self.minimax(s[1], depth-1, not maximizing_player, best_move)
+                eval, _ = self.minimax(s[1], depth-1, not maximizing_player)
                 # inEval = min(minEval, eval)
                 if eval < minEval:
                     minEval = eval
