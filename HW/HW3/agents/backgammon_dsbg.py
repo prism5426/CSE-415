@@ -6,6 +6,8 @@ UW netid(s):
 from game_engine import genmoves
 import math
 
+W = 0
+R = 1
 
 class BackgammonPlayer:
     def __init__(self):
@@ -61,54 +63,77 @@ class BackgammonPlayer:
     # for the two players (W and R) -- more positive numbers are good for W
     # while more negative numbers are good for R
     def staticEval(self, state):
+
         pts = 0
-        for index in range(6, 18):
+        for index in range(24):
             for checker in state.pointLists[index]:
-                if checker == 'W':
+                white_cnt = 0
+                red_cnt = 0
+                if checker == W:
+                    white_cnt += 1
                     pts += index
-                elif checker == 'R':
+                elif checker == R:
+                    red_cnt += 1
+                    pts -= (23 - index)
+                if white_cnt == 1:
+                    pts-=100
+                elif red_cnt == 1:
+                    pts+=100
+
+
+        pts += len(state.white_off) * 300
+        pts -= len(state.red_off) * 300
+        '''for index in range(6,18):
+            for checker in state.pointLists[index]:
+                if checker == W:
+                    pts += index
+                elif checker == R:
                     pts -= (23 - index)
 
         for index in range(0, 6):
             for checker in state.pointLists[index]:
-                if checker == 'W':
-                    pts += 5
-                elif checker == 'R':
-                    pts -= 50
+                if checker == W:
+                    pts += -10
+                elif checker == R:
+                    pts -= 25
 
         for index in range(18, 24):
             for checker in state.pointLists[index]:
-                if checker == 'W':
-                    pts += 50
-                elif checker == 'R':
-                    pts -= 5
+                if checker == W:
+                    pts += 25
+                elif checker == R:
+                    pts += 10'''
 
-        pts += len(state.white_off) * 10000
-        pts -+ len(state.red_off) * 10000
+
         return pts
 
     # returns the best move's staticEval
     def minimax(self, state, depth, maximizing_player):
-        if state is None:
-            return 0, 'p'
+        #if state is None:
+        #    return 0, 'p'
         if depth == 0 or self.gameover(state, maximizing_player):
             return self.staticEval(state), None
 
         best_move = None
-        if maximizing_player:
+        if maximizing_player is W:
             maxEval = -math.inf
 
             # update the move_generator to current state/position
             self.initialize_move_gen_for_state(state, maximizing_player, self.die1, self.die2)
             # get all possible moves in current position
             pm_list = self.get_all_possible_moves()
-
+            print("depth" + str(depth) + '=-=-===-=-=--==-=-=-=-=-==-=-')
+            print("len of solutions:" + str(len(pm_list)))
             for s in pm_list:
+                if(s[0] == 'p'):
+                    return self.staticEval(state), 'p'
                 eval, _ = self.minimax(s[1], depth-1, not maximizing_player)
                 # maxEval = max(maxEval, eval)
                 if eval > maxEval:
                     maxEval = eval
                     best_move = s[0]
+                    print('maxeval is ' + str(maxEval))
+                    print('best_move: ' + str(best_move))
             return maxEval, best_move
 
         else:
@@ -120,11 +145,15 @@ class BackgammonPlayer:
             pm_list = self.get_all_possible_moves()
 
             for s in pm_list:
+                if(s[0] == 'p'):
+                    return self.staticEval(state), 'p'
                 eval, _ = self.minimax(s[1], depth-1, not maximizing_player)
-                # inEval = min(minEval, eval)
+                # minEval = min(minEval, eval)
                 if eval < minEval:
                     minEval = eval
                     best_move = s[0]
+                    print('mineval is ' + str(minEval))
+                    print('best_move: ' + str(best_move))
             return minEval, best_move
 
 
