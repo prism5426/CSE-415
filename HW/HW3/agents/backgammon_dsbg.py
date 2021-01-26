@@ -49,27 +49,12 @@ class BackgammonPlayer:
         self.die2 = die2
 
         # update the move_generator to current state/position
-        self.initialize_move_gen_for_state(state, state.whose_move, self.die1, self.die2)
-        # do minimax for current player
-        best_move_value = self.minimax(state, self.setMaxPly, state.whose_move)
-
-        # do minimax for the layer under current player
+        self.initialize_move_gen_for_state(state, 0, self.die1, self.die2)
         # get all possible moves in current position
         pm_list = self.get_all_possible_moves()
-        # if state.whose_move is W, set initial max value to neg_inf
-        # if state.whose_move is R, set initial max value to inf
-        possible_move_list_value = (-math.inf, math.inf)[state.whose_move]
-        for pair in pm_list:
-            minimax_value = self.minimax(pair[1], self.setMaxPly - 1, not state.whose_move)
-            if state.whose_move is 0: # white
-                possible_move_list_value = max(possible_move_list_value, minimax_value)
-            elif state.whose_move is 1: # red
-                possible_move_list_value = min(possible_move_list_value, minimax_value)
 
-        for pair in pm_list:
-            if pair[1] == possible_move_list_value:
-                return pair[0]
-            
+
+
         return None
 
     # Given a state, returns an integer which represents how good the state is
@@ -112,9 +97,8 @@ class BackgammonPlayer:
             # get all possible moves in current position
             pm_list = self.get_all_possible_moves()
 
-            for pair in pm_list:
-                # pair[0] is move, pair[1] is state
-                eval = self.minimax(pair[1], depth - 1, not maximizing_player)
+            for s in pm_list:
+                eval = self.minimax(s, depth - 1, not maximizing_player)
                 minEval = min(minEval, eval)
             return minEval
 
@@ -140,7 +124,7 @@ class BackgammonPlayer:
                 # print("next returns: ",m[0]) # Prints out the move.    For debugging.
                 if m[0] != 'p':
                     any_non_pass_moves = True
-                    move_list.append((m[0], m[1]))    # Add the move to the list.
+                    move_list.append(m[0])    # Add the move to the list.
             except StopIteration as e:
                 done_finding_moves = True
         if not any_non_pass_moves:
