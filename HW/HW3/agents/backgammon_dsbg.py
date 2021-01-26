@@ -32,7 +32,7 @@ class BackgammonPlayer:
     # should go down in the search tree. If maxply==-1,
     # no limit is set
     def setMaxPly(self, maxply=-1):
-        self.setMaxPly = maxply
+        self.MaxDepth = maxply
 
     # If not None, it update the internal static evaluation
     # function to be func
@@ -47,35 +47,54 @@ class BackgammonPlayer:
         # Hint: you can get the current player with state.whose_move
         self.die1 = die1
         self.die2 = die2
-
+        self.setMaxPly(3)
         # update the move_generator to current state/position
-        self.initialize_move_gen_for_state(state, 0, self.die1, self.die2)
+        # self.initialize_move_gen_for_state(state, state.whose_move, self.die1, self.die2)
         # get all possible moves in current position
-        pm_list = self.get_all_possible_moves()
+        # pm_list = self.get_all_possible_moves()
 
+        eval, best_move = self.minimax(state, self.MaxDepth, state.whose_move)
+        return best_move
 
-
-        return None
 
     # Given a state, returns an integer which represents how good the state is
     # for the two players (W and R) -- more positive numbers are good for W
     # while more negative numbers are good for R
     def staticEval(self, state):
         pts = 0
-        for index in range(24):
+        for index in range(6, 18):
             for checker in state.pointLists[index]:
                 if checker == 'W':
                     pts += index
                 elif checker == 'R':
                     pts -= (23 - index)
 
+        for index in range(0, 6):
+            for checker in state.pointLists[index]:
+                if checker == 'W':
+                    pts += 5
+                elif checker == 'R':
+                    pts -= 50
+
+        for index in range(18, 24):
+            for checker in state.pointLists[index]:
+                if checker == 'W':
+                    pts += 50
+                elif checker == 'R':
+                    pts -= 5
+
+        pts += len(state.white_off) * 10000
+        pts -+ len(state.red_off) * 10000
         return pts
 
     # returns the best move's staticEval
     def minimax(self, state, depth, maximizing_player):
+        if state is None:
+            return 0, 'p'
         if depth == 0 or self.gameover(state, maximizing_player):
-            return self.staticEval(state)
+            return self.staticEval(state), None
 
+        best_move = None
         if maximizing_player:
             maxEval = -math.inf
 
@@ -85,9 +104,12 @@ class BackgammonPlayer:
             pm_list = self.get_all_possible_moves()
 
             for s in pm_list:
-                eval = self.minimax(s, depth - 1, not maximizing_player)
-                maxEval = max(maxEval, eval)
-            return maxEval
+                eval, _ = self.minimax(s[1], depth-1, not maximizing_player)
+                # maxEval = max(maxEval, eval)
+                if eval > maxEval:
+                    maxEval = eval
+                    best_move = s[0]
+            return maxEval, best_move
 
         else:
             minEval = math.inf
@@ -98,9 +120,12 @@ class BackgammonPlayer:
             pm_list = self.get_all_possible_moves()
 
             for s in pm_list:
-                eval = self.minimax(s, depth - 1, not maximizing_player)
-                minEval = min(minEval, eval)
-            return minEval
+                eval, _ = self.minimax(s[1], depth-1, not maximizing_player)
+                # inEval = min(minEval, eval)
+                if eval < minEval:
+                    minEval = eval
+                    best_move = s[0]
+            return minEval, best_move
 
 
     def initialize_move_gen_for_state(self, state, who, die1, die2):
@@ -124,9 +149,9 @@ class BackgammonPlayer:
                 # print("next returns: ",m[0]) # Prints out the move.    For debugging.
                 if m[0] != 'p':
                     any_non_pass_moves = True
-                    move_list.append(m[0])    # Add the move to the list.
+                    move_list.append(m)    # Add the move to the list.
             except StopIteration as e:
                 done_finding_moves = True
         if not any_non_pass_moves:
-            move_list.append('p')
+            move_list.append(('p',None))
         return move_list

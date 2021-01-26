@@ -1,7 +1,3 @@
-!.gitignore
-/*
-!/HW
-/HW/*
-!/HW/HW?
-/HW/HW?/*
-!/HW/HW?/*py
+
+*.pyc
+*.pyc
