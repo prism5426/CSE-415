@@ -13,7 +13,7 @@ from agents import randomAgent, SkeletonAgent, backgammon_dsbg
 player1 = backgammon_dsbg.BackgammonPlayer()
 player2 = SkeletonAgent.BackgammonPlayer()
 
-DETERMINISTIC = False  # deterministic version: dice are loaded to give 1 and 6
+DETERMINISTIC = True  # deterministic version: dice are loaded to give 1 and 6
 # stochastic version (DETERMINISTIC = false): dice are rolled normally.
 
 # Student's UW net-id
