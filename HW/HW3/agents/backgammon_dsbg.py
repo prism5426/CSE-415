@@ -15,8 +15,8 @@ class BackgammonPlayer:
         self.GenMoveInstance = genmoves.GenMoves()
         self.se_func = None
         self.usePrune = True
-        self.stateExplored = -1
-        self.cutoff = -1
+        self.stateExplored = 0
+        self.cutoff = 0
         self.die1 = 1
         self.die2 = 6
         self.MaxDepth = 3
@@ -59,11 +59,16 @@ class BackgammonPlayer:
         # print(self.usePrune)
         '''eval, best_move = (self.alphaBeta(state, self.MaxDepth, -math.inf, math.inf, state.whose_move),
                            self.minimax(state, self.MaxDepth, state.whose_move))[self.usePrune]'''
-        if self.usePrune is True:
+        '''if self.usePrune is True:
             _, best_move, self.stateExplored, self.cutoff = self.alphaBeta(state, self.MaxDepth, -math.inf, math.inf, state.whose_move)
         else:
-            _, best_move, self.stateExplored = self.minimax(state, self.MaxDepth, state.whose_move)
-        print("state explored = " + str(self.stateExplored) + ", number of cutoff = " + str(self.cutoff))
+            _, best_move, self.stateExplored = self.minimax(state, self.MaxDepth, state.whose_move)'''
+        if self.usePrune is True:
+            _, best_move, stateExploredTemp, cutoffTemp = self.alphaBeta(state, self.MaxDepth, -math.inf, math.inf,
+                                                                         state.whose_move)
+        else:
+            _, best_move, stateExploredTemp = self.minimax(state, self.MaxDepth, state.whose_move)
+        # print("state explored = " + str(self.stateExplored) + ", number of cutoff = " + str(self.cutoff))
         return best_move
 
     # Given a state, returns an integer which represents how good the state is
@@ -160,7 +165,9 @@ class BackgammonPlayer:
                 if eval > maxEval:
                     maxEval = eval
                     best_move = s[0]
+                self.stateExplored += 1
             nodeCount += 1
+
             return maxEval, best_move, nodeCount
 
         else:
@@ -172,6 +179,7 @@ class BackgammonPlayer:
                 if eval < minEval:
                     minEval = eval
                     best_move = s[0]
+                self.stateExplored += 1
             nodeCount += 1
             return minEval, best_move, nodeCount
 
@@ -199,11 +207,15 @@ class BackgammonPlayer:
                     maxEval = eval
                     best_move = s[0]
                 alpha = max(maxEval, eval)
+
                 if beta <= alpha:
                     cutoff += 1
+                    self.cutoff += 1
                     # return maxEval, best_move, nodeCount, cutoff
                     break
-                nodeCount += 1
+                self.stateExplored += 1
+            nodeCount += 1
+
             return maxEval, best_move, nodeCount, cutoff
 
         else:
@@ -217,11 +229,15 @@ class BackgammonPlayer:
                     minEval = eval
                     best_move = s[0]
                 beta = min(beta, eval)
+
                 if beta <= alpha:
                     cutoff += 1
+                    self.cutoff += 1
                     # return minEval, best_move, nodeCount, cutoff
                     break
-                nodeCount += 1 # update nodeCount if not cutoff
+                self.stateExplored += 1
+            nodeCount += 1  # update nodeCount if not cutoff
+
             return minEval, best_move, nodeCount, cutoff
 
     def initialize_move_gen_for_state(self, state, who, die1, die2):
