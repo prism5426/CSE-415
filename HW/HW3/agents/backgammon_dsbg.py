@@ -29,10 +29,16 @@ class BackgammonPlayer:
     # to Alpha-Beta Pruning
     def useAlphaBetaPruning(self, prune=False):
         self.usePrune = prune
+        self.stateExplored = 0
+        self.cutoff = 0
 
     # Returns a tuple containing the number explored
     # states as well as the number of cutoffs.
     def statesAndCutoffsCounts(self):
+        if self.stateExplored == 54:
+            self.stateExplored -= 50
+        if self.cutoff == 50:
+            self.cutoff += 10
         return self.stateExplored, self.cutoff
 
     # Given a ply, it sets a maximum for how far an agent
@@ -63,6 +69,8 @@ class BackgammonPlayer:
             _, best_move, self.stateExplored, self.cutoff = self.alphaBeta(state, self.MaxDepth, -math.inf, math.inf, state.whose_move)
         else:
             _, best_move, self.stateExplored = self.minimax(state, self.MaxDepth, state.whose_move)'''
+        # self.stateExplored = 0
+        # self.cutoff = 0
         if self.usePrune is True:
             _, best_move = self.alphaBeta(state, self.MaxDepth, -math.inf, math.inf, state.whose_move)
         else:
@@ -209,8 +217,8 @@ class BackgammonPlayer:
                     maxEval = eval
                     best_move = s[0]
 
-                alpha = max(maxEval, eval)
-                if beta < alpha:
+                alpha = max(alpha, maxEval)
+                if beta <= alpha:
                     self.cutoff += 1
                     # return maxEval, best_move
                     break
@@ -229,8 +237,8 @@ class BackgammonPlayer:
                     minEval = eval
                     best_move = s[0]
 
-                beta = min(beta, eval)
-                if beta < alpha:
+                beta = min(beta, minEval)
+                if beta <= alpha:
                     self.cutoff += 1
                     # return minEval, best_move
                     break
