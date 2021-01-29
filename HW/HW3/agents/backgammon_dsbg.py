@@ -64,11 +64,10 @@ class BackgammonPlayer:
         else:
             _, best_move, self.stateExplored = self.minimax(state, self.MaxDepth, state.whose_move)'''
         if self.usePrune is True:
-            _, best_move, stateExploredTemp, cutoffTemp = self.alphaBeta(state, self.MaxDepth, -math.inf, math.inf,
-                                                                         state.whose_move)
+            _, best_move = self.alphaBeta(state, self.MaxDepth, -math.inf, math.inf, state.whose_move)
         else:
-            _, best_move, stateExploredTemp = self.minimax(state, self.MaxDepth, state.whose_move)
-        # print("state explored = " + str(self.stateExplored) + ", number of cutoff = " + str(self.cutoff))
+            _, best_move = self.minimax(state, self.MaxDepth, state.whose_move)
+        print("state explored = " + str(self.stateExplored) + ", number of cutoff = " + str(self.cutoff))
         return best_move
 
     # Given a state, returns an integer which represents how good the state is
@@ -145,100 +144,98 @@ class BackgammonPlayer:
 
     # returns the best move's staticEval
     def minimax(self, state, depth, maximizing_player):
-        nodeCount = 0
         if state is None:
-            return 0, 'p', 0
+            return 0, 'p'
         if depth == 0 or self.gameover(state, maximizing_player):
-            return self.staticEval(state), None, 0
+            return self.staticEval(state), None
 
         # update the move_generator to current state/position
         self.initialize_move_gen_for_state(state, maximizing_player, self.die1, self.die2)
         # get all possible moves in current position
         pm_list = self.get_all_possible_moves()
 
+        self.stateExplored += 1
+
         if maximizing_player is W:
             maxEval = -math.inf
             for s in pm_list:
-                eval, _, nodeCountTemp = self.minimax(s[1], depth - 1, not maximizing_player)
-                nodeCount += nodeCountTemp
+                if len(pm_list) == 1:
+                    best_move = s[0]
+
+                eval, _ = self.minimax(s[1], depth - 1, not maximizing_player)
                 # maxEval = max(maxEval, eval)
                 if eval > maxEval:
                     maxEval = eval
                     best_move = s[0]
-                self.stateExplored += 1
-            nodeCount += 1
 
-            return maxEval, best_move, nodeCount
+            return maxEval, best_move
 
         else:
             minEval = math.inf
             for s in pm_list:
-                eval, _, nodeCountTemp = self.minimax(s[1], depth - 1, not maximizing_player)
-                nodeCount += nodeCountTemp
+                if len(pm_list) == 1:
+                    best_move = s[0]
+
+                eval, _ = self.minimax(s[1], depth - 1, not maximizing_player)
                 # inEval = min(minEval, eval)
                 if eval < minEval:
                     minEval = eval
                     best_move = s[0]
-                self.stateExplored += 1
-            nodeCount += 1
-            return minEval, best_move, nodeCount
+
+            return minEval, best_move
 
     def alphaBeta(self, state, depth, alpha, beta, maximizing_player):
-        nodeCount = 0
-        cutoff = 0
         if state is None:
-            return 0, 'p', 0, 0
+            return 0, 'p'
         if depth == 0 or self.gameover(state, maximizing_player):
-            return self.staticEval(state), None, 0, 0
+            return self.staticEval(state), None
 
         # update the move_generator to current state/position
         self.initialize_move_gen_for_state(state, maximizing_player, self.die1, self.die2)
         # get all possible moves in current position
         pm_list = self.get_all_possible_moves()
 
+        self.stateExplored += 1
+
         if maximizing_player is W:
             maxEval = -math.inf
             for s in pm_list:
-                eval, _, nodeCountTemp, cutoffTemp = self.alphaBeta(s[1], depth - 1, alpha, beta, not maximizing_player)
-                nodeCount += nodeCountTemp
-                cutoff += cutoffTemp
+                if len(pm_list) == 1:
+                    best_move = s[0]
+
+                eval, _ = self.alphaBeta(s[1], depth - 1, alpha, beta, not maximizing_player)
                 # maxEval = max(maxEval, eval)
                 if eval > maxEval:
                     maxEval = eval
                     best_move = s[0]
+
                 alpha = max(maxEval, eval)
-
-                if beta <= alpha:
-                    cutoff += 1
+                if beta < alpha:
                     self.cutoff += 1
-                    # return maxEval, best_move, nodeCount, cutoff
+                    # return maxEval, best_move
                     break
-                self.stateExplored += 1
-            nodeCount += 1
 
-            return maxEval, best_move, nodeCount, cutoff
+            return maxEval, best_move
 
         else:
             minEval = math.inf
             for s in pm_list:
-                eval, _, nodeCountTemp, cutoffTemp = self.alphaBeta(s[1], depth - 1, alpha, beta, not maximizing_player)
-                nodeCount += nodeCountTemp
-                cutoff += cutoffTemp
+                if len(pm_list) == 1:
+                    best_move = s[0]
+
+                eval, _ = self.alphaBeta(s[1], depth - 1, alpha, beta, not maximizing_player)
                 # inEval = min(minEval, eval)
                 if eval < minEval:
                     minEval = eval
                     best_move = s[0]
+
                 beta = min(beta, eval)
-
-                if beta <= alpha:
-                    cutoff += 1
+                if beta < alpha:
                     self.cutoff += 1
-                    # return minEval, best_move, nodeCount, cutoff
+                    # return minEval, best_move
                     break
-                self.stateExplored += 1
-            nodeCount += 1  # update nodeCount if not cutoff
 
-            return minEval, best_move, nodeCount, cutoff
+            return minEval, best_move
 
     def initialize_move_gen_for_state(self, state, who, die1, die2):
         self.move_generator = self.GenMoveInstance.gen_moves(state, who, die1, die2)
