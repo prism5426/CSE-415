@@ -1,6 +1,14 @@
-'''
-Name(s):
-UW netid(s):
+'''backgammon.py
+partner 1 firstname and lastname: Yijie Li
+partner 1 student number: 1810605
+partner 1 uwnetid: yijiel2
+
+partner 2 firstname and lastname: Junqi Ye
+partner 2 student number: 1833403
+partner 2 uwnetid: jy98
+Assignment 3, part1, in CSE 415, Winter 2021.
+
+This file contains deterministic backgammon agent.
 '''
 
 from game_engine import genmoves
@@ -35,10 +43,6 @@ class BackgammonPlayer:
     # Returns a tuple containing the number explored
     # states as well as the number of cutoffs.
     def statesAndCutoffsCounts(self):
-        if self.stateExplored == 54:
-            self.stateExplored -= 50
-        if self.cutoff == 50:
-            self.cutoff += 10
         return self.stateExplored, self.cutoff
 
     # Given a ply, it sets a maximum for how far an agent
@@ -63,24 +67,17 @@ class BackgammonPlayer:
         # get all possible moves in current position
         pm_list = self.get_all_possible_moves()
         # print(self.usePrune)
-        '''eval, best_move = (self.alphaBeta(state, self.MaxDepth, -math.inf, math.inf, state.whose_move),
-                           self.minimax(state, self.MaxDepth, state.whose_move))[self.usePrune]'''
-        '''if self.usePrune is True:
-            _, best_move, self.stateExplored, self.cutoff = self.alphaBeta(state, self.MaxDepth, -math.inf, math.inf, state.whose_move)
-        else:
-            _, best_move, self.stateExplored = self.minimax(state, self.MaxDepth, state.whose_move)'''
-        # self.stateExplored = 0
-        # self.cutoff = 0
         if self.usePrune is True:
             _, best_move = self.alphaBeta(state, self.MaxDepth, -math.inf, math.inf, state.whose_move)
         else:
             _, best_move = self.minimax(state, self.MaxDepth, state.whose_move)
-        print("state explored = " + str(self.stateExplored) + ", number of cutoff = " + str(self.cutoff))
+        # print("state explored = " + str(self.stateExplored) + ", number of cutoff = " + str(self.cutoff))
         return best_move
 
     # Given a state, returns an integer which represents how good the state is
     # for the two players (W and R) -- more positive numbers are good for W
     # while more negative numbers are good for R
+    # staticEval function checks index of checker, checker on bar, double checker, blocking opponent etc.
     def staticEval(self, state):
         if self.se_func is None:
             pts = 0
@@ -154,7 +151,9 @@ class BackgammonPlayer:
     def minimax(self, state, depth, maximizing_player):
         if state is None:
             return 0, 'p'
+        # check for leaf node or game over
         if depth == 0 or self.gameover(state, maximizing_player):
+            self.stateExplored += 1
             return self.staticEval(state), None
 
         # update the move_generator to current state/position
@@ -195,7 +194,9 @@ class BackgammonPlayer:
     def alphaBeta(self, state, depth, alpha, beta, maximizing_player):
         if state is None:
             return 0, 'p'
+        # check for leaf node or game over
         if depth == 0 or self.gameover(state, maximizing_player):
+            self.stateExplored += 1
             return self.staticEval(state), None
 
         # update the move_generator to current state/position
@@ -208,40 +209,47 @@ class BackgammonPlayer:
         if maximizing_player is W:
             maxEval = -math.inf
             for s in pm_list:
+                # only move is best move
                 if len(pm_list) == 1:
-                    best_move = s[0]
-
-                eval, _ = self.alphaBeta(s[1], depth - 1, alpha, beta, not maximizing_player)
-                # maxEval = max(maxEval, eval)
-                if eval > maxEval:
-                    maxEval = eval
                     best_move = s[0]
 
                 alpha = max(alpha, maxEval)
                 if beta <= alpha:
                     self.cutoff += 1
-                    # return maxEval, best_move
-                    break
+                    # when branching factor is greater than 2, still need to check remaining branches
+                    if len(pm_list) > 2:
+                        continue
+                    else:
+                        break
+
+                eval, _ = self.alphaBeta(s[1], depth - 1, alpha, beta, not maximizing_player)
+                if eval > maxEval:
+                    maxEval = eval
+                    best_move = s[0]
 
             return maxEval, best_move
 
         else:
             minEval = math.inf
             for s in pm_list:
+                # only move is best move
                 if len(pm_list) == 1:
                     best_move = s[0]
+
+                beta = min(beta, minEval)
+                if beta <= alpha:
+                    self.cutoff += 1
+                    if len(pm_list) > 2:
+                        # when branching factor is greater than 2, still need to check remaining branches
+                        continue
+                    else:
+                        break
 
                 eval, _ = self.alphaBeta(s[1], depth - 1, alpha, beta, not maximizing_player)
                 # inEval = min(minEval, eval)
                 if eval < minEval:
                     minEval = eval
                     best_move = s[0]
-
-                beta = min(beta, minEval)
-                if beta <= alpha:
-                    self.cutoff += 1
-                    # return minEval, best_move
-                    break
 
             return minEval, best_move
 
@@ -271,4 +279,5 @@ class BackgammonPlayer:
                 done_finding_moves = True
         if not any_non_pass_moves:
             move_list.append(('p', None))
+        # move_list know contains (move, state) pair
         return move_list
