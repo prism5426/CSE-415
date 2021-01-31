@@ -63,9 +63,9 @@ class BackgammonPlayer:
         self.die2 = die2
         # self.setMaxPly(3)
         # update the move_generator to current state/position
-        self.initialize_move_gen_for_state(state, state.whose_move, self.die1, self.die2)
+        # self.initialize_move_gen_for_state(state, state.whose_move, self.die1, self.die2)
         # get all possible moves in current position
-        pm_list = self.get_all_possible_moves()
+        # pm_list = self.get_all_possible_moves()
         # print(self.usePrune)
         if self.usePrune is True:
             _, best_move = self.alphaBeta(state, self.MaxDepth, -math.inf, math.inf, state.whose_move)
